@@ -1,0 +1,87 @@
+<SCRIPT language="JavaScript1.2">
+	/// Variables para la velocidad de scroll
+	var pixeles = 1 // Número de pixeles que baja en cada scroll
+	var pausas = 30 // Tiempo de pausa entre scroll en ms
+	/// Direccion de la página a cargar
+	var url = 'resultados.html'
+
+	// Esta funcion se ejecuta en la carga de la pagina
+	window.onload=initialize;
+	function initialize(){
+		actualizarAjax(url, 'contenidos');
+		setInterval("scrollWindow()",pausas) //Comentar esta línea para deshabilitar scroll
+	}
+	
+	// Función para esperar seg segundos
+	function sleep(seg) {
+	  var start = new Date().getTime();
+	  for (var i = 0; i < 1e7; i++) {
+		if ((new Date().getTime() - start) > seg*1000){
+		  break;
+		}
+	  }
+	}
+
+
+	// Esta función cargará las paginas mediante Ajax
+	function actualizarAjax(url, id_contenedor){
+		var pagina_requerida = false
+		if( !window.ActiveXObject ) {// Si es Mozilla, Safari, etc 
+			pagina_requerida = new XMLHttpRequest()
+		} else if( window.ActiveXObject ){ // pero si es IE
+			try {
+				pagina_requerida = new ActiveXObject("Msxml2.XMLHTTP")
+			} 
+			catch (e){ // en caso que sea una versión antigua
+				try{
+					pagina_requerida = new ActiveXObject("Microsoft.XMLHTTP")
+				}
+				catch (e){alert("Error al cargar página mediante Ajax")}
+			}
+		}
+		else return false
+		pagina_requerida.open('GET', url, true) // asignamos los métodos open y send
+		pagina_requerida.overrideMimeType("text/html; charset=ISO-8859-1")
+		pagina_requerida.send(null)
+		pagina_requerida.onreadystatechange = function(){ // función de respuesta
+			cargarpagina(pagina_requerida, id_contenedor)
+		}
+		
+		
+		// Al terminar la carga de la pagina, comienza el scroll
+	}
+
+	// todo es correcto y ha llegado el momento de poner la información requerida
+	// en su sitio en la pagina xhtml
+	function cargarpagina(pagina_requerida, id_contenedor){
+		if (pagina_requerida.readyState == 4 && 
+		(pagina_requerida.status==200 || window.location.href.indexOf("http")==-1))
+			document.getElementById(id_contenedor).innerHTML=pagina_requerida.responseText
+	}
+
+	// Funcion que hace el scroll en la pagina
+	var currentpos=0;
+	function scrollWindow(){
+		currentpos = window.pageYOffset+pixeles;// se elige la posicion siguiente
+		if( document.getElementById('contenidos').offsetHeight-document.body.clientHeight > currentpos )
+		// window.body.clientHeight es el tamaño de la ventana en mi ordenador
+			window.scroll(0,currentpos);// se hace el scroll
+		else{ // Si llegó al final de la pagina
+			sleep(2)
+			window.scroll(0,0) // Vuelve al principio
+			actualizarAjax(url, 'contenidos') // Recarga la pagina
+		}
+	}
+</SCRIPT>
+
+<html>
+	<head>
+		<meta http-equiv="content-type" content="" content; charset=ISO-8859-1" >
+
+		<title>Resultados</title>
+	</head>
+
+	<body>
+		<div id="contenidos" lang="es" align="center">Actualizando...</div>
+	</body>
+</html>
