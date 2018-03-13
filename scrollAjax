@@ -1,19 +1,30 @@
 <SCRIPT language="JavaScript1.2">
 	
 	/// Variables para la velocidad de scroll
-	var pixeles = 1 // Número de pixeles que baja en cada scroll
+	var pixeles = 1 // N�mero de pixeles que baja en cada scroll
 	var pausas = 30 // Tiempo de pausa entre scroll en ms
-	/// Direccion de la página a cargar
-	var url = 'resultados.html'
+	/// Direccion de la p�gina a cargar
+	var url = 'media.html'
 
 	// Esta funcion se ejecuta en la carga de la pagina
 	window.onload=initialize;
 	function initialize(){
 		actualizarAjax(url, 'contenidos');
-		setInterval("scrollwindow()",pausas)
+		setInterval("scrollwindow()",pausas) //Comentar esta l�nea para deshabilitar scroll
 	}
 
-	// Esta función cargará las paginas mediante Ajax
+	// Funci�n para esperar seg segundos
+	function sleep(seg) {
+	  var start = new Date().getTime();
+	  for (var i = 0; i < 1e7; i++) {
+		if ((new Date().getTime() - start) > seg*1000){
+		  break;
+		}
+	  }
+	}
+
+
+	// Esta funci�n cargar� las paginas mediante Ajax
 	function actualizarAjax(url, id_contenedor){
 		var pagina_requerida = false
 		if( !window.ActiveXObject ) {// Si es Mozilla, Safari, etc 
@@ -22,24 +33,24 @@
 			try {
 				pagina_requerida = new ActiveXObject("Msxml2.XMLHTTP")
 			} 
-			catch (e){ // en caso que sea una versión antigua
+			catch (e){ // en caso que sea una versi�n antigua
 				try{
 					pagina_requerida = new ActiveXObject("Microsoft.XMLHTTP")
 				}
-				catch (e){alert("Error al cargar página mediante Ajax")}
+				catch (e){alert("Error al cargar p�gina mediante Ajax")}
 			}
 		}
 		else return false
-		pagina_requerida.onreadystatechange = function(){ // función de respuesta
+		pagina_requerida.onreadystatechange = function(){ // funci�n de respuesta
 			cargarpagina(pagina_requerida, id_contenedor)
 		}
-		pagina_requerida.open('GET', url, true) // asignamos los métodos open y send
-		pagina_requerida.overrideMimeType("text/html;charset=ISO-8859-1")
+		pagina_requerida.open('GET', url, true) // asignamos los m�todos open y send
+		pagina_requerida.overrideMimeType("text/html; charset=ISO-8859-1")
 		pagina_requerida.send(null)
 		// Al terminar la carga de la pagina, comienza el scroll
 	}
 
-	// todo es correcto y ha llegado el momento de poner la información requerida
+	// todo es correcto y ha llegado el momento de poner la informaci�n requerida
 	// en su sitio en la pagina xhtml
 	function cargarpagina(pagina_requerida, id_contenedor){
 		if (pagina_requerida.readyState == 4 && 
@@ -52,9 +63,10 @@
 	function scrollwindow(){
 		currentpos = window.pageYOffset+pixeles;// se elige la posicion siguiente
 		if( document.getElementById('contenidos').offsetHeight-document.body.clientHeight > currentpos )
-		// window.body.clientHeight es el tamaño de la ventana en mi ordenador
+		// window.body.clientHeight es el tama�o de la ventana en mi ordenador
 			window.scroll(0,currentpos);// se hace el scroll
-		else{ // Si llegó al final de la pagina
+		else{ // Si lleg� al final de la pagina
+			//sleep(2)
 			window.scroll(0,0) // Vuelve al principio
 			actualizarAjax(url, 'contenidos') // Recarga la pagina
 		}
