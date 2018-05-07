@@ -1,0 +1,144 @@
+<SCRIPT language="JavaScript1.2">
+	/// Variables para la velocidad de scroll
+	var conf = {
+		pixeles: 1, // Número de pixeles que baja en cada scroll
+		pausas: 20, // Tiempo de pausa entre scroll en ms
+		primero: {
+			url: 'mediaMasc.html', //Direccion de la página a cargar
+			titulo: 'Categorias masculinas', // Nombre para mostrar
+			contenedor: 'contenidos', // elemento HTML donde se carga la página
+		},
+		segundo: {
+			url: 'mediaFem.html', //Direccion de la página a cargar
+			titulo: 'Categorias femeninas', // Nombre para mostrar
+			contenedor: 'segundo', // elemento HTML donde se carga la página
+		}
+	};
+
+	// Esta funcion se ejecuta en la carga de la pagina
+	window.onload=initialize;
+	function initialize(){
+		anadeTitulos('primero');
+		document.getElementById('segundo-titl').innerHTML=conf.segundo.titulo;
+		actualizarAjax(conf.primero);
+		actualizarAjax(conf.segundo);
+		
+		// comentar estas lineas para desactivar scroll
+		setInterval(function(){muevePixeles(conf.primero);},conf.pausas);
+		setInterval(function(){muevePixeles(conf.segundo, 1);},conf.pausas);
+	}
+	
+	function anadeTitulos(elem) {
+		document.getElementById(elem+'-titl').innerHTML=conf[elem].titulo;
+	}
+	// Esta función cargará las paginas mediante Ajax
+	function actualizarAjax(columna){
+		var url = columna.url;
+		var id_contenedor = columna.contenedor;
+		var pagina_requerida = false
+		if( !window.ActiveXObject ) {// Si es Mozilla, Safari, etc 
+			pagina_requerida = new XMLHttpRequest()
+		} else if( window.ActiveXObject ){ // pero si es IE
+			try {
+				pagina_requerida = new ActiveXObject("Msxml2.XMLHTTP")
+			} 
+			catch (e){ // en caso que sea una versión antigua
+				try{
+					pagina_requerida = new ActiveXObject("Microsoft.XMLHTTP")
+				}
+				catch (e){alert("Error al cargar página mediante Ajax")}
+			}
+		}
+		else return false
+		pagina_requerida.open('GET', url, true) // asignamos los métodos open y send
+		pagina_requerida.overrideMimeType("text/html; charset=ISO-8859-1")
+		pagina_requerida.send(null)
+		pagina_requerida.onreadystatechange = function(){ // función de respuesta
+			cargarpagina(pagina_requerida, id_contenedor)
+		}
+		
+		
+		// Al terminar la carga de la pagina, comienza el scroll
+	}
+
+	// todo es correcto y ha llegado el momento de poner la información requerida
+	// en su sitio en la pagina xhtml
+	function cargarpagina(pag, id_contenedor){
+		if (pag.readyState == 4 && 
+		(pag.status==200 || window.location.href.indexOf("http")==-1))
+			document.getElementById(id_contenedor).innerHTML=pag.responseText
+	}
+	
+	// Funcion que hace el scroll en la pagina moviendola x pixeles
+	var currentPos=0;
+	function muevePixeles(elemento, reverso){
+		var contenedor = document.getElementById(elemento.contenedor);
+		var alturaNavegador = contenedor.scrollHeight;
+		var r = (!reverso) ? 1 : -1;
+		var principio = (!reverso) ? 0 : alturaNavegador;
+		currentPos = contenedor.scrollTop+(r*conf.pixeles);// se elige la posicion siguiente
+		var esFinPagina = currentPos<0 || currentPos>=alturaNavegador-contenedor.offsetHeight
+		if (!esFinPagina) {
+			contenedor.scroll(0,currentPos);// se hace el scroll
+		}else{ // Si llegó al final de la pagina
+			var esperarParaRecargarMs = 20;
+			window.setTimeout(function(){
+				contenedor.scroll(0,principio) // Vuelve al principio
+				actualizarAjax(elemento) // Recarga la pagina
+			}, esperarParaRecargarMs);
+		}
+	}
+</SCRIPT>
+
+<html>
+	<head>
+		<meta http-equiv="content-type" content="" content; charset=ISO-8859-1" >
+
+		<style>
+			html, body { 
+				height: 100%;
+				margin: 0; padding:0; border: 0;
+				overflow: hidden;
+			}
+			#reporttop #rb a, div#navigation { display: none ; }
+			#segundo {
+				float: right;
+			}
+			#segundo-titl {
+				right: 0;
+			}
+			.titulo {
+				height: 20px;
+				position: fixed;
+				background-color: #FFFFE0;
+				border-bottom: 1px solid black;
+				width: 50%;
+				padding: 7px;
+				font-size: 20px;
+				text-align: center;
+			}
+			.contenedor {
+				width: 40%;
+				margin-left: 10%;
+				min-width: 500px;
+				float: left;
+				height: 100%;
+				overflow-y: scroll;
+			}
+		</style>
+		<title>Resultados</title>
+	</head>
+
+	<body>
+	<div id="primero-titl" class="titulo"></div>
+			<div id="segundo-titl" class="titulo"></div>
+		<div id="contenidos" class="contenedor" lang="es" align="center">
+			
+			<div>Actualizando...</div>
+		</div>
+		
+		<div id="segundo" class="contenedor" lang="es" align="center">
+			<div></div>
+		</div>
+	</body>
+</html>
