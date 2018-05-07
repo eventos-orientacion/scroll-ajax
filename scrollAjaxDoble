@@ -1,16 +1,17 @@
 <SCRIPT language="JavaScript1.2">
 	/// Variables para la velocidad de scroll
 	var conf = {
-		pixeles: 1, // Número de pixeles que baja en cada scroll
-		pausas: 20, // Tiempo de pausa entre scroll en ms
+		pixeles: 40, // Número de pixeles que baja en cada scroll
+		pausas: 800, // Tiempo de pausa entre scroll en ms
+		pausaFin: 20, // Esperar para recargar ms
 		primero: {
-			url: 'mediaMasc.html', //Direccion de la página a cargar
-			titulo: 'Categorias masculinas', // Nombre para mostrar
+			url: 'mediaSenior.html', //Direccion de la página a cargar
+			titulo: 'Élite masculino y femenino', // Nombre para mostrar
 			contenedor: 'contenidos', // elemento HTML donde se carga la página
 		},
 		segundo: {
-			url: 'mediaFem.html', //Direccion de la página a cargar
-			titulo: 'Categorias femeninas', // Nombre para mostrar
+			url: 'media.html', //Direccion de la página a cargar
+			titulo: 'Resultados completos', // Nombre para mostrar
 			contenedor: 'segundo', // elemento HTML donde se carga la página
 		}
 	};
@@ -19,7 +20,7 @@
 	window.onload=initialize;
 	function initialize(){
 		anadeTitulos('primero');
-		document.getElementById('segundo-titl').innerHTML=conf.segundo.titulo;
+		anadeTitulos('segundo');
 		actualizarAjax(conf.primero);
 		actualizarAjax(conf.segundo);
 		
@@ -81,6 +82,22 @@
 		if (!esFinPagina) {
 			contenedor.scroll(0,currentPos);// se hace el scroll
 		}else{ // Si llegó al final de la pagina
+			window.setTimeout(function(){
+				contenedor.scroll(0,principio) // Vuelve al principio
+				actualizarAjax(elemento) // Recarga la pagina
+			}, conf.pausaFin);
+		}
+	};
+	function muevePixelesOld(elemento, reverso){
+		var contenedor = document.getElementById(elemento.contenedor);
+		var alturaNavegador = contenedor.scrollHeight;
+		var r = (!reverso) ? 1 : -1;
+		var principio = (!reverso) ? 0 : alturaNavegador;
+		currentPos = contenedor.scrollTop+(r*conf.pixeles);// se elige la posicion siguiente
+		var esFinPagina = currentPos<0 || currentPos>=alturaNavegador-contenedor.offsetHeight
+		if (!esFinPagina) {
+			contenedor.scroll(0,currentPos);// se hace el scroll
+		}else{ // Si llegó al final de la pagina
 			var esperarParaRecargarMs = 20;
 			window.setTimeout(function(){
 				contenedor.scroll(0,principio) // Vuelve al principio
@@ -88,6 +105,7 @@
 			}, esperarParaRecargarMs);
 		}
 	}
+
 </SCRIPT>
 
 <html>
